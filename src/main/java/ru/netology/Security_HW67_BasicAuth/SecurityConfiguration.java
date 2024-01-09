@@ -2,6 +2,7 @@ package ru.netology.Security_HW67_BasicAuth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -12,6 +13,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 public class SecurityConfiguration {
     @Bean
     public PasswordEncoder encoder() {
@@ -22,15 +24,15 @@ public class SecurityConfiguration {
     public InMemoryUserDetailsManager userDetailsManager(PasswordEncoder encoder) {
         UserDetails user1 = User.withUsername("user1")
                 .password(encoder.encode("password1"))
-                .authorities("read")
+                .roles("READ")
                 .build();
         UserDetails user2 = User.withUsername("user2")
                 .password(encoder.encode("password2"))
-                .authorities("write")
+                .roles("WRITE")
                 .build();
         UserDetails user3 = User.withUsername("user3")
                 .password(encoder.encode("password3"))
-                .authorities("delete")
+                .roles("DELETE")
                 .build();
 
         return new InMemoryUserDetailsManager(user1, user2, user3);
@@ -43,24 +45,21 @@ public class SecurityConfiguration {
                 .and()
                 .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/welcome").permitAll()
                 .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/all").hasAuthority("read")
-                .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/{id}").hasAuthority("read")
-                .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "api/posts/write").hasAuthority("write")
-                .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "api/posts/delete").hasAuthority("delete")
-                .and()
-
-                // для метода POST
-                .authorizeRequests().antMatchers(HttpMethod.POST, "/api/posts").hasAuthority("write")
-                .and()
-
-                // для метода DELETE
-                .authorizeRequests().antMatchers(HttpMethod.DELETE, "/api/posts/{id}").hasAuthority("delete")
-
-                .and()
                 .authorizeRequests().anyRequest().authenticated();
         return http.build();
     }
 }
+
+//@Bean
+//    public UserDetailsService userDetailsService() throws Exception {
+//        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+//        manager.createUser(User
+//                .withUsername("user")
+//                .password(encoder().encode("userPass"))
+//                .roles("USER").build());
+//        manager.createUser(User
+//                .withUsername("admin")
+//                .password(encoder().encode("adminPass"))
+//                .roles("ADMIN").build());
+//        return manager;
+//    }
