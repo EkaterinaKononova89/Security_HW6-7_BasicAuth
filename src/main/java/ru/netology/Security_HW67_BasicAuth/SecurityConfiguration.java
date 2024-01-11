@@ -2,6 +2,7 @@ package ru.netology.Security_HW67_BasicAuth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,11 +42,12 @@ public class SecurityConfiguration {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .formLogin()
-                .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/welcome").permitAll()
-                .and()
-                .authorizeRequests().anyRequest().authenticated();
+                .formLogin(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize
+                        .antMatchers(HttpMethod.GET, "/api/posts/welcome").permitAll()
+                        .anyRequest().authenticated())
+                .csrf().disable();
         return http.build();
     }
 }
