@@ -41,15 +41,15 @@ public class SecurityConfiguration {
         http
                 .formLogin()
                 .and()
+                .httpBasic()
+                .and()
                 .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/welcome").permitAll()
                 .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/all").hasAuthority("read")
+                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/write").hasAuthority("write")
                 .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/{id}").hasAuthority("read")
+                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/delete").hasAuthority("delete")
                 .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "api/posts/write").hasAuthority("write")
-                .and()
-                .authorizeRequests().antMatchers(HttpMethod.GET, "api/posts/delete").hasAuthority("delete")
+                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/**").hasAuthority("read")
                 .and()
 
                 // для метода POST
@@ -60,7 +60,9 @@ public class SecurityConfiguration {
                 .authorizeRequests().antMatchers(HttpMethod.DELETE, "/api/posts/{id}").hasAuthority("delete")
 
                 .and()
-                .authorizeRequests().anyRequest().authenticated();
+                .authorizeRequests().anyRequest().authenticated()
+                .and()
+                .csrf().disable();
         return http.build();
     }
 }
